@@ -1,6 +1,7 @@
 package com.github.alexzhang.retry;
 
 import com.github.alexzhang.retry.attempts.AttemptTimeLimiters;
+import com.github.alexzhang.retry.strategies.StopStrategies;
 import com.github.alexzhang.retry.strategies.WaitStrategies;
 import com.google.common.base.Predicate;
 
@@ -25,4 +26,33 @@ public class RetryHelper {
                 .retryIfException()
                 .build();
     }
+    /**
+     * retry when exception,retry 10 times duration 500ms with Fibonacci
+     * 斐波那契数列的策略重试
+     * @param <T>
+     * @return
+     */
+    public static <T> Retryer<T> getFibonacciAfterAttempts10(){
+        return   RetryerBuilder.<T>newBuilder()
+                .retryIfException()
+                .retryIfRuntimeException()
+                .withWaitStrategy(WaitStrategies.fibonacciWait(100, 2, TimeUnit.MINUTES))
+                .withStopStrategy(StopStrategies.stopAfterAttempt(10))
+                .build();
+    }
+    /**
+     * retry when exception,retry 10 times duration 500ms with exponential
+     * 指数退避的策略重试，类似于TCP中的重试
+     * @param <T>
+     * @return
+     */
+    public static <T> Retryer<T> getxponentialAfterAttempts10(){
+        return   RetryerBuilder.<T>newBuilder()
+                .retryIfException()
+                .retryIfRuntimeException()
+                .withWaitStrategy(WaitStrategies.exponentialWait(100, 2, TimeUnit.MILLISECONDS))
+                .withStopStrategy(StopStrategies.stopAfterAttempt(10))
+                .build();
+    }
+
 }
