@@ -1,5 +1,7 @@
 
 ##Quickstart
+在guava的基础上进行了重写，主要是增加了默认的listener，用于打印重试的细节和次数
+对callable进行了装饰，用于传递mdc，对线程上下文进行了传递，分布式环境下用于追踪的连续性以及采用线程上下文缓存的可读取
 A minimal sample of some of the functionality would look like:
 
 ```java
