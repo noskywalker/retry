@@ -1,7 +1,6 @@
 package com.github.alexzhang.retry.listeners;
 
-import com.github.alexzhang.retry.Attempt;
-import com.github.alexzhang.retry.RetryListener;
+import com.github.alexzhang.retry.attempts.Attempt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

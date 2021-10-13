@@ -16,14 +16,24 @@
 
 package com.github.alexzhang.retry;
 
+import com.github.alexzhang.retry.attempts.Attempt;
+import com.github.alexzhang.retry.attempts.AttemptTimeLimiter;
+import com.github.alexzhang.retry.attempts.AttemptTimeLimiters;
+import com.github.alexzhang.retry.listeners.RetryListener;
+import com.github.alexzhang.retry.strategies.BlockStrategies;
+import com.github.alexzhang.retry.strategies.BlockStrategy;
+import com.github.alexzhang.retry.strategies.StopStrategy;
+import com.github.alexzhang.retry.strategies.WaitStrategy;
 import com.google.common.annotations.Beta;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
+import org.slf4j.MDC;
 
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -153,11 +163,12 @@ public final class Retryer<V> {
      *                            this exception is thrown and the thread's interrupt status is set.
      */
     public V call(Callable<V> callable) throws ExecutionException, RetryException {
+        MdcCallable<V> mdcCallable=new MdcCallable<>(callable,MDC.getCopyOfContextMap(),Thread.currentThread());
         long startTime = System.nanoTime();
         for (int attemptNumber = 1; ; attemptNumber++) {
             Attempt<V> attempt;
             try {
-                V result = attemptTimeLimiter.call(callable);
+                V result = attemptTimeLimiter.call(mdcCallable);
                 attempt = new ResultAttempt<V>(result, attemptNumber, TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startTime));
             } catch (Throwable t) {
                 attempt = new ExceptionAttempt<V>(t, attemptNumber, TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startTime));
@@ -316,6 +327,38 @@ public final class Retryer<V> {
         @Override
         public X call() throws ExecutionException, RetryException {
             return retryer.call(callable);
+        }
+    }
+
+    class MdcCallable<Y> implements Callable<Y> {
+
+        private Callable<Y> callable;
+
+        private Map<String, String> mdcContext;
+
+        private Thread callerThread;
+
+        public MdcCallable(Callable<Y> callable, Map<String, String> mdcContext, Thread callerThread) {
+            this.callable = callable;
+            this.mdcContext = mdcContext;
+            this.callerThread = callerThread;
+        }
+
+        @Override
+        public Y call() throws Exception {
+
+            if (Thread.currentThread() != callerThread && mdcContext != null) {
+                MDC.setContextMap(mdcContext);
+            }
+            try {
+                return callable.call();
+            }catch(Exception e){
+                throw e;
+            }finally {
+                if (Thread.currentThread() != callerThread && mdcContext != null) {
+                    MDC.clear();
+                }
+            }
         }
     }
 }

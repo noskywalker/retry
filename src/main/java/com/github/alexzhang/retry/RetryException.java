@@ -16,6 +16,8 @@
 
 package com.github.alexzhang.retry;
 
+import com.github.alexzhang.retry.attempts.Attempt;
+
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
 

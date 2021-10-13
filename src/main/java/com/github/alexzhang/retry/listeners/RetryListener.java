@@ -14,20 +14,24 @@
  * limitations under the License.
  */
 
-package com.github.alexzhang.retry;
+package com.github.alexzhang.retry.listeners;
+
+
+import com.github.alexzhang.retry.Retryer;
+import com.github.alexzhang.retry.attempts.Attempt;
 
 /**
- * A strategy used to decide if a retryer must stop retrying after a failed attempt or not.
- *
- * @author JB
+ * This listener provides callbacks for several events that occur when running
+ * code through a {@link Retryer} instance.
  */
-public interface StopStrategy {
+public interface RetryListener<V> {
 
     /**
-     * Returns <code>true</code> if the retryer should stop retrying.
+     * This method with fire no matter what the result is and before the
+     * rejection predicate and stop strategies are applied.
      *
-     * @param failedAttempt the previous failed {@code Attempt}
-     * @return <code>true</code> if the retryer must stop, <code>false</code> otherwise
+     * @param attempt the current {@link Attempt}
+     * @param <V>     the type returned by the retryer callable
      */
-    boolean shouldStop(Attempt failedAttempt);
+    <V> void onRetry(Attempt<V> attempt);
 }

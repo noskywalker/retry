@@ -1,29 +1,3 @@
-[![Build Status](http://img.shields.io/travis/rholder/guava-retrying.svg)](https://travis-ci.org/rholder/guava-retrying) [![Latest Version](http://img.shields.io/badge/latest-2.0.0-brightgreen.svg)](https://github.com/rholder/guava-retrying/releases/tag/v2.0.0) [![License](http://img.shields.io/badge/license-apache%202-brightgreen.svg)](https://github.com/rholder/guava-retrying/blob/master/LICENSE)
-
-
-##What is this?
-The guava-retrying module provides a general purpose method for retrying arbitrary Java code with specific stop, retry,
-and exception handling capabilities that are enhanced by Guava's predicate matching.
-
-This is a fork of the excellent RetryerBuilder code posted [here](http://code.google.com/p/guava-libraries/issues/detail?id=490)
-by Jean-Baptiste Nizet (JB).  I've added a Gradle build for pushing it up to my little corner of Maven Central so that
-others can easily pull it into their existing projects with minimal effort.  It also includes
-exponential and Fibonacci backoff [WaitStrategies](http://rholder.github.io/guava-retrying/javadoc/2.0.0/com/github/rholder/retry/WaitStrategies.html)
-that might be useful for situations where more well-behaved service polling is preferred.
-
-##Maven
-```xml
-    <dependency>
-      <groupId>com.github.rholder</groupId>
-      <artifactId>guava-retrying</artifactId>
-      <version>2.0.0</version>
-    </dependency>
-```
-
-##Gradle
-```groovy
-    compile "com.github.rholder:guava-retrying:2.0.0"
-```
 
 ##Quickstart
 A minimal sample of some of the functionality would look like:

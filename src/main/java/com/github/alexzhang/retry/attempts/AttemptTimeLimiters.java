@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.github.alexzhang.retry;
+package com.github.alexzhang.retry.attempts;
 
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.SimpleTimeLimiter;

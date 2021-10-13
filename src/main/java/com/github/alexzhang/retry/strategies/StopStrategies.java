@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package com.github.alexzhang.retry;
+package com.github.alexzhang.retry.strategies;
 
-import java.util.concurrent.TimeUnit;
+import com.github.alexzhang.retry.attempts.Attempt;
+import com.google.common.base.Preconditions;
 
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
-
-import com.google.common.base.Preconditions;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Factory class for {@link StopStrategy} instances.

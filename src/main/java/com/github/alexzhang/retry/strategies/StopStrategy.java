@@ -14,21 +14,22 @@
  * limitations under the License.
  */
 
-package com.github.alexzhang.retry;
+package com.github.alexzhang.retry.strategies;
 
-import java.util.concurrent.Callable;
+import com.github.alexzhang.retry.attempts.Attempt;
 
 /**
- * A rule to wrap any single attempt in a time limit, where it will possibly be interrupted if the limit is exceeded.
+ * A strategy used to decide if a retryer must stop retrying after a failed attempt or not.
  *
- * @param <V> return type of Callable
- * @author Jason Dunkelberger (dirkraft)
+ * @author JB
  */
-public interface AttemptTimeLimiter<V> {
+public interface StopStrategy {
+
     /**
-     * @param callable to subject to the time limit
-     * @return the return of the given callable
-     * @throws Exception any exception from this invocation
+     * Returns <code>true</code> if the retryer should stop retrying.
+     *
+     * @param failedAttempt the previous failed {@code Attempt}
+     * @return <code>true</code> if the retryer must stop, <code>false</code> otherwise
      */
-    V call(Callable<V> callable) throws Exception;
+    boolean shouldStop(Attempt failedAttempt);
 }

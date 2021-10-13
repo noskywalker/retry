@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package com.github.alexzhang.retry;
+package com.github.alexzhang.retry.strategies;
 
+import com.github.alexzhang.retry.attempts.Attempt;
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;

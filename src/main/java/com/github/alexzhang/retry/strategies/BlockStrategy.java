@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.github.alexzhang.retry;
+package com.github.alexzhang.retry.strategies;
 
 /**
  * This is a strategy used to decide how a retryer should block between retry

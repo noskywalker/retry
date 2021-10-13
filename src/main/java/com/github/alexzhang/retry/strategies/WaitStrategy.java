@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-package com.github.alexzhang.retry;
+package com.github.alexzhang.retry.strategies;
+
+import com.github.alexzhang.retry.attempts.Attempt;
 
 /**
  * A strategy used to decide how long to sleep before retrying after a failed attempt.

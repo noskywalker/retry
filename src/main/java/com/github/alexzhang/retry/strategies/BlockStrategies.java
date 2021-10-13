@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.github.alexzhang.retry;
+package com.github.alexzhang.retry.strategies;
 
 import javax.annotation.concurrent.Immutable;
 
