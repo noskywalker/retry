@@ -45,6 +45,7 @@ import java.util.List;
 public class RetryerBuilder<V> {
     private AttemptTimeLimiter<V> attemptTimeLimiter;
     private StopStrategy stopStrategy;
+    private Integer retryTimes;
     private WaitStrategy waitStrategy;
     private BlockStrategy blockStrategy;
     private Predicate<Attempt<V>> rejectionPredicate = Predicates.alwaysFalse();
@@ -116,6 +117,19 @@ public class RetryerBuilder<V> {
         Preconditions.checkNotNull(blockStrategy, "blockStrategy may not be null");
         Preconditions.checkState(this.blockStrategy == null, "a block strategy has already been set %s", this.blockStrategy);
         this.blockStrategy = blockStrategy;
+        return this;
+    }
+
+    /**
+     * set retry times
+     * @param retryTimes default is 1
+     * @return
+     * @throws IllegalStateException
+     */
+    public RetryerBuilder<V> withRetryTimes(@Nonnull Integer retryTimes) throws IllegalStateException {
+        Preconditions.checkNotNull(retryTimes, "retryTimes may not be null");
+        Preconditions.checkState(this.retryTimes >0, "retryTimes must more than once");
+        this.retryTimes = retryTimes;
         return this;
     }
 
@@ -204,8 +218,7 @@ public class RetryerBuilder<V> {
         WaitStrategy theWaitStrategy = waitStrategy == null ? WaitStrategies.noWait() : waitStrategy;
         BlockStrategy theBlockStrategy = blockStrategy == null ? BlockStrategies.threadSleepStrategy() : blockStrategy;
         if(listeners.size()==0)listeners.add(new RetryDefaultListener());
-
-        return new Retryer<V>(theAttemptTimeLimiter, theStopStrategy, theWaitStrategy, theBlockStrategy, rejectionPredicate, listeners);
+        return new Retryer<V>(theAttemptTimeLimiter, theStopStrategy, theWaitStrategy, theBlockStrategy, rejectionPredicate, listeners,retryTimes);
     }
 
     private static final class ExceptionClassPredicate<V> implements Predicate<Attempt<V>> {

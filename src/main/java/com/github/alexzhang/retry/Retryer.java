@@ -56,6 +56,7 @@ import java.util.concurrent.TimeUnit;
 public final class Retryer<V> {
     private final StopStrategy stopStrategy;
     private final WaitStrategy waitStrategy;
+    private Integer retryTimes=1;
     private final BlockStrategy blockStrategy;
     private final AttemptTimeLimiter<V> attemptTimeLimiter;
     private final Predicate<Attempt<V>> rejectionPredicate;
@@ -148,6 +149,42 @@ public final class Retryer<V> {
     }
 
     /**
+     * Constructor
+     *
+     * @param attemptTimeLimiter to prevent from any single attempt from spinning infinitely
+     * @param stopStrategy       the strategy used to decide when the retryer must stop retrying
+     * @param waitStrategy       the strategy used to decide how much time to sleep between attempts
+     * @param blockStrategy      the strategy used to decide how to block between retry attempts; eg, Thread#sleep(), latches, etc.
+     * @param rejectionPredicate the predicate used to decide if the attempt must be rejected
+     *                           or not. If an attempt is rejected, the retryer will retry the call, unless the stop
+     *                           strategy indicates otherwise or the thread is interrupted.
+     * @param listeners          collection of retry listeners
+     */
+    @Beta
+    public Retryer(@Nonnull AttemptTimeLimiter<V> attemptTimeLimiter,
+                   @Nonnull StopStrategy stopStrategy,
+                   @Nonnull WaitStrategy waitStrategy,
+                   @Nonnull BlockStrategy blockStrategy,
+                   @Nonnull Predicate<Attempt<V>> rejectionPredicate,
+                   @Nonnull Collection<RetryListener> listeners,
+                   Integer retryTimes) {
+        Preconditions.checkNotNull(attemptTimeLimiter, "timeLimiter may not be null");
+        Preconditions.checkNotNull(stopStrategy, "stopStrategy may not be null");
+        Preconditions.checkNotNull(waitStrategy, "waitStrategy may not be null");
+        Preconditions.checkNotNull(blockStrategy, "blockStrategy may not be null");
+        Preconditions.checkNotNull(rejectionPredicate, "rejectionPredicate may not be null");
+        Preconditions.checkNotNull(listeners, "listeners may not null");
+
+        this.attemptTimeLimiter = attemptTimeLimiter;
+        this.stopStrategy = stopStrategy;
+        this.waitStrategy = waitStrategy;
+        this.blockStrategy = blockStrategy;
+        this.rejectionPredicate = rejectionPredicate;
+        this.listeners = listeners;
+        this.retryTimes=retryTimes;
+    }
+
+    /**
      * Executes the given callable. If the rejection predicate
      * accepts the attempt, the stop strategy is used to decide if a new attempt
      * must be made. Then the wait strategy is used to decide how much time to sleep
@@ -165,7 +202,9 @@ public final class Retryer<V> {
     public V call(Callable<V> callable) throws ExecutionException, RetryException {
         MdcCallable<V> mdcCallable=new MdcCallable<>(callable,MDC.getCopyOfContextMap(),Thread.currentThread());
         long startTime = System.nanoTime();
-        for (int attemptNumber = 1; ; attemptNumber++) {
+        Attempt<V> lastAttempt = null;
+
+        for (int attemptNumber = 1; attemptNumber<=this.retryTimes; attemptNumber++) {
             Attempt<V> attempt;
             try {
                 V result = attemptTimeLimiter.call(mdcCallable);
@@ -173,7 +212,7 @@ public final class Retryer<V> {
             } catch (Throwable t) {
                 attempt = new ExceptionAttempt<V>(t, attemptNumber, TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startTime));
             }
-
+            lastAttempt=attempt;
             for (RetryListener listener : listeners) {
                 listener.onRetry(attempt);
             }
@@ -193,6 +232,7 @@ public final class Retryer<V> {
                 }
             }
         }
+        throw new RetryException(retryTimes, lastAttempt);
     }
 
     /**
