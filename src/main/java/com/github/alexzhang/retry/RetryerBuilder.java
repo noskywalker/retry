@@ -45,7 +45,7 @@ import java.util.List;
 public class RetryerBuilder<V> {
     private AttemptTimeLimiter<V> attemptTimeLimiter;
     private StopStrategy stopStrategy;
-    private Integer retryTimes;
+    private Integer retryTimes=Integer.MAX_VALUE;
     private WaitStrategy waitStrategy;
     private BlockStrategy blockStrategy;
     private Predicate<Attempt<V>> rejectionPredicate = Predicates.alwaysFalse();

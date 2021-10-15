@@ -56,7 +56,7 @@ import java.util.concurrent.TimeUnit;
 public final class Retryer<V> {
     private final StopStrategy stopStrategy;
     private final WaitStrategy waitStrategy;
-    private Integer retryTimes=1;
+    private Integer retryTimes=Integer.MAX_VALUE;
     private final BlockStrategy blockStrategy;
     private final AttemptTimeLimiter<V> attemptTimeLimiter;
     private final Predicate<Attempt<V>> rejectionPredicate;
